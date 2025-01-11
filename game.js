@@ -1,6 +1,6 @@
-const { formatTime } = require("./utils");
+import { formatTime } from "./utils.js";
 
-const getGameInfo = async (gameTitle, clientId, accessToken, axios) => {
+export async function getGameInfo(gameTitle, clientId, accessToken, axios) {
   try {
     // First, search for the game to get its ID
     const gameResponse = await axios.post(
@@ -72,6 +72,4 @@ const getGameInfo = async (gameTitle, clientId, accessToken, axios) => {
     console.error("Error:", error.response?.data || error.message);
     throw error;
   }
-};
-
-module.exports = { getGameInfo };
+}

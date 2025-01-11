@@ -1,4 +1,4 @@
-async function getPageIdByTitle(dbID, notion, titleValue) {
+export async function getPageIdByTitle(dbID, notion, titleValue) {
   try {
     const response = await notion.databases.query({
       database_id: dbID,
@@ -48,7 +48,7 @@ async function getPageIdByTitle(dbID, notion, titleValue) {
   // console.log(`💥 response is: `, formattedProps);
 }
 
-async function addGameToBacklog(dbID, notion, gameObject) {
+export async function addGameToBacklog(dbID, notion, gameObject) {
   try {
     const response = await notion.pages.update({
       page_id: pageId,
@@ -62,7 +62,7 @@ async function addGameToBacklog(dbID, notion, gameObject) {
 // Update the specific property with a specific value,
 // Make a switch statement that checks the property and changes the formatting to the correct format
 // Maybe make it a general switch statement so that I can provide it as a utility to the add and udpate?
-async function updateGameInBacklog(pageId, notion, updatedProperties) {
+export async function updateGameInBacklog(pageId, notion, updatedProperties) {
   try {
     await notion.pages.update({
       page_id: pageId,
@@ -72,9 +72,3 @@ async function updateGameInBacklog(pageId, notion, updatedProperties) {
     console.log(error);
   }
 }
-
-module.exports = {
-  getPageIdByTitle,
-  addGameToBacklog,
-  updateGameInBacklog,
-};

@@ -1,13 +1,15 @@
-const { Client } = require("@notionhq/client");
-const axios = require("axios");
-const { getGameInfo } = require("./game");
-const {
+import { Client } from "@notionhq/client";
+import axios from "axios";
+import { getGameInfo } from "./game.js";
+import {
   getPageIdByTitle,
   addGameToBacklog,
   updateGameInBacklog,
-} = require("./notion");
-const { updateProperties } = require("./properties");
-require("dotenv").config();
+} from "./notion.js";
+import { updateProperties } from "./properties.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;

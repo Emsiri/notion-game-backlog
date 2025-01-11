@@ -1,4 +1,4 @@
-function updateProperties(property, value) {
+export function updateProperties(property, value) {
   switch (property) {
     case "status":
       return {
@@ -18,5 +18,3 @@ function updateProperties(property, value) {
       throw new Error(`Property not in list, send either status, etc`);
   }
 }
-
-module.exports = { updateProperties };
