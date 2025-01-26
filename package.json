@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "bin": {
+    "game-backlog": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,8 +15,13 @@
   "dependencies": {
     "@notionhq/client": "^2.2.15",
     "axios": "^1.7.9",
+    "chalk": "^5.4.1",
+    "commander": "^13.0.0",
     "dotenv": "^16.4.7",
-    "howlongtobeat": "^1.8.0"
+    "howlongtobeat": "^1.8.0",
+    "inquirer": "^12.3.1",
+    "install": "^0.13.0",
+    "npm": "^11.0.0"
   },
   "type": "module"
 }

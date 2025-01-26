@@ -1,11 +1,43 @@
 import { formatTime } from "./utils.js";
 
-export async function getGameInfo(gameTitle, clientId, accessToken, axios) {
+// Break these out into separate function calls and compose them into app to use in cli
+
+// TODO change to object params with names
+// Update to TS
+
+const fetchGenres = async (genreIds, axios, clientId, accessToken) => {
   try {
-    // First, search for the game to get its ID
-    const gameResponse = await axios.post(
+    const idsString = genreIds.join(","); // Convert array to a comma-separated string
+    const { data: genreResponse } = await axios.post(
+      "https://api.igdb.com/v4/genres",
+      `fields id, name; where id = (${idsString});`,
+      {
+        headers: {
+          "Client-ID": clientId,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const genreList = await genreResponse.map((genre) => {
+      return genre.name;
+    });
+
+    return genreList.toString();
+  } catch (error) {
+    console.error(
+      "Error fetching genres:",
+      error.response?.data || error.message
+    );
+  }
+};
+
+export async function getGameInfo(gameTitle, clientId, accessToken, axios) {
+  let gameInfo = {};
+  try {
+    const { data: gameResponse } = await axios.post(
       "https://api.igdb.com/v4/games",
-      `search "${gameTitle}"; fields name,checksum,id,game_modes,total_rating,rating,rating_count,status,storyline,summary,themes,total_rating,total_rating_count,genres; limit 1;`,
+      `search "${gameTitle}"; fields name,id,genres; limit 1;`,
       {
         headers: {
           "Client-ID": clientId,
@@ -15,46 +47,42 @@ export async function getGameInfo(gameTitle, clientId, accessToken, axios) {
       }
     );
 
-    if (!gameResponse.data.length) {
+    gameInfo["Game title"] = {
+      title: [
+        {
+          text: {
+            content: gameResponse[0].name,
+          },
+        },
+      ],
+    };
+
+    if (!gameResponse.length) {
       throw new Error("Game not found");
     }
 
-    const fetchGenres = async (genreIds) => {
-      try {
-        const idsString = genreIds.join(","); // Convert array to a comma-separated string
-        const response = await axios.post(
-          "https://api.igdb.com/v4/genres",
-          `fields id, name; where id = (${idsString});`,
-          {
-            headers: {
-              "Client-ID": clientId,
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+    // Example: Convert genre IDs [12, 31] to their names
+    const genreNames = await fetchGenres(
+      gameResponse[0].genres,
+      axios,
+      clientId,
+      accessToken
+    );
 
-        // Convert response to a mapping of ID to Name
-        const genreMap = await response.data.reduce((acc, genre) => {
-          acc[genre.id] = genre.name;
-          return acc;
-        }, {});
-
-        console.log("Genre Map:", genreMap);
-      } catch (error) {
-        console.error(
-          "Error fetching genres:",
-          error.response?.data || error.message
-        );
-      }
+    gameInfo.Genre = {
+      rich_text: [
+        {
+          text: {
+            content: genreNames,
+          },
+        },
+      ],
     };
 
-    // Example: Convert genre IDs [12, 31] to their names
-    const genreNames = fetchGenres(gameResponse.data[0].genres);
-    console.log(`💥 genreNames is: `, genreNames);
-
-    const gameId = gameResponse.data[0].id;
-    // Then get the completion time data
-    const timeResponse = await axios.post(
+    const gameId = gameResponse[0].id;
+    // Get the time to beat for the game
+    // TODO pull out as a separate func
+    const { data: timeResponse } = await axios.post(
       "https://api.igdb.com/v4/game_time_to_beats",
       `fields *; where game_id = ${gameId};`,
       {
@@ -65,9 +93,12 @@ export async function getGameInfo(gameTitle, clientId, accessToken, axios) {
       }
     );
 
-    const time = formatTime(timeResponse.data[0].normally);
+    const time = formatTime(timeResponse[0].normally);
+    gameInfo["Time to beat"] = {
+      number: time,
+    };
 
-    return time || null;
+    return gameInfo || null;
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     throw error;

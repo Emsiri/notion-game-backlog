@@ -1,20 +1,31 @@
-export async function getPageIdByTitle(dbID, notion, titleValue) {
+export async function getGameInfoNotion(dbID, notion, gameTitle) {
+  let gameInfo = {};
   try {
     const response = await notion.databases.query({
       database_id: dbID,
       filter: {
-        property: "Game title", // Replace 'Name' with the actual name of your title property
+        property: "Game title",
         title: {
-          equals: titleValue,
+          equals: gameTitle,
         },
       },
     });
-
     if (response.results.length > 0) {
-      console.log(`💥 response.results is: `, response.results[0].properties);
+      // Object property assignment
       const pageId = response.results[0].id;
+      const completion = response.results[0].properties["Completion"].number;
+      const hoursPlayed = response.results[0].properties["Hours played"].number;
+      const runsOnDeck =
+        response.results[0].properties["Runs on Deck"].checkbox;
+      const owned = response.results[0].properties["Owned"].checkbox;
+      gameInfo.pageId = pageId;
+      gameInfo.completion = completion;
+      gameInfo.hoursPlayed = hoursPlayed;
+      gameInfo.runsOnDeck = runsOnDeck;
+      gameInfo.owned = owned;
+
       console.log("Page ID:", pageId);
-      return pageId;
+      return gameInfo;
     } else {
       console.log("No matching page found.");
       return null;
@@ -22,47 +33,27 @@ export async function getPageIdByTitle(dbID, notion, titleValue) {
   } catch (error) {
     console.error("Error querying database:", error);
   }
-  // const props = response.results.map((entries) => entries.properties);
-  // const formattedProps = props.map(
-  //   ({
-  //     "Runs on Deck": deck,
-  //     Owned,
-  //     Genre,
-  //     Completion,
-  //     "Time to beat": time,
-  //     "Game title": title,
-  //     Status,
-  //   }) => ({
-  //     runsOnDeck: deck.checkbox,
-  //     owned: Owned.checkbox,
-  //     genre: Genre.rich_text[0]?.plain_text || "",
-  //     completion: `${Completion.number}%`,
-  //     timeToBeat: time.number,
-  //     gameTitle: title.title[0] || "",
-  //     gameTitleText: title.title[0].text || "",
-  //     gameTitleAnnotations: title.title[0].annotations || "",
-  //     status: Status.status.name,
-  //   })
-  // );
-
-  // console.log(`💥 response is: `, formattedProps);
 }
 
-export async function addGameToBacklog(dbID, notion, gameObject) {
+export async function writeGameObjectToNotion(notion, dbID, gameObject) {
   try {
-    const response = await notion.pages.update({
-      page_id: pageId,
-      properties: updatedProperties,
+    const response = await notion.pages.create({
+      parent: { database_id: dbID },
+      properties: gameObject,
     });
+
+    console.log("Database entry created successfully:", response);
+    return response;
   } catch (error) {
-    console.log(error);
+    console.error("Error creating database entry:", error);
   }
 }
 
-// Update the specific property with a specific value,
-// Make a switch statement that checks the property and changes the formatting to the correct format
-// Maybe make it a general switch statement so that I can provide it as a utility to the add and udpate?
-export async function updateGameInBacklog(pageId, notion, updatedProperties) {
+export async function updateGameObjectToNotion(
+  pageId,
+  notion,
+  updatedProperties
+) {
   try {
     await notion.pages.update({
       page_id: pageId,
