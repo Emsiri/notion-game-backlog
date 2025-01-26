@@ -63,3 +63,25 @@ export async function updateGameObjectToNotion(
     console.log(error);
   }
 }
+
+export async function retrieveNotes(pageId, notion) {
+  const response = await notion.pages.retrieve({ page_id: pageId });
+  return response;
+}
+
+export async function updateNote(pageId, notion, updatedNote) {
+  await notion.pages.update({
+    page_id: pageId,
+    properties: {
+      Notes: {
+        rich_text: [
+          {
+            text: {
+              content: updatedNote,
+            },
+          },
+        ],
+      },
+    },
+  });
+}

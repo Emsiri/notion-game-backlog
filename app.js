@@ -3,11 +3,14 @@ import axios from "axios";
 import { getGameInfo } from "./game.js";
 import {
   getGameInfoNotion,
+  retrieveNotes,
   updateGameObjectToNotion,
+  updateNote,
   writeGameObjectToNotion,
 } from "./notion.js";
 import { updateProperties } from "./properties.js";
 import dotenv from "dotenv";
+import dayjs from "dayjs";
 
 dotenv.config();
 
@@ -46,6 +49,30 @@ export async function updateGameInBacklog(gameTitle, property, value) {
   updateProperties(updateGameObject, property, value, gameInfo.hoursPlayed);
   await updateGameObjectToNotion(gameInfo.pageId, notion, updateGameObject);
 }
+
+export async function updateGameNotes(gameTitle, note) {
+  const gameInfo = await getGameInfoNotion(dbID, notion, gameTitle);
+  const response = await retrieveNotes(gameInfo.pageId, notion);
+  const currentNote = response.properties.Notes.rich_text?.length
+    ? response.properties.note.rich_text
+        .map((item) => item.text.content)
+        .join("")
+    : "";
+  // Generate a timestamp
+  const timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
+
+  // Combine the current notes with the new note
+  const updatedNote = `${currentNote}${
+    currentNote ? "\n" : ""
+  }[${timestamp}] ${note}`;
+  try {
+    await updateNote(gameInfo.pageId, notion, updatedNote);
+  } catch (error) {
+    console.log("Error updating note: ", error);
+  }
+}
+
+// TODO Mark a game as finished, update the status and set the hours played time to time to beat so completion = 100%
 
 // Figure out how to make this all generic enough to work on books, movies and tv shows dbs
 

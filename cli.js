@@ -3,7 +3,11 @@
 import { Command } from "commander";
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { addGameToBacklog, updateGameInBacklog } from "./app.js";
+import {
+  addGameToBacklog,
+  updateGameInBacklog,
+  updateGameNotes,
+} from "./app.js";
 
 const program = new Command();
 
@@ -13,6 +17,8 @@ program
   .version("1.0.0");
 
 // Add a game to the backlog
+// TODO tweak the Add game backlog property to ask questions about owned, status and runs on deck and set those properties at once
+// Also have an optional Notes question to set a note when adding (platform, who recommended it, why, etc)
 program
   .command("add")
   .description("Add a new game to your backlog")
@@ -31,6 +37,7 @@ program
     console.log(chalk.green("Game added successfully!"));
   });
 
+// Update a game in the backlog
 program
   .command("update")
   .description("Update an existing game in your backlog")
@@ -83,7 +90,13 @@ program
           type: "list",
           name: "value",
           message: `What status would you like to change to?`,
-          choices: ["In progress", "Shelved", "Not playing"],
+          choices: [
+            "In progress",
+            "Shelved",
+            "Not playing",
+            "Abandoned",
+            "Done",
+          ],
         };
         break;
       // Figure out how to retrieve this info from protonDB
@@ -117,6 +130,33 @@ program
     console.log(
       chalk.green(`✨ ${gameTitle} has been successfully updated! ✨`)
     );
+  });
+
+// Add a game to the backlog
+program
+  .command("note")
+  .description("Add a new note to a game in the backlog")
+  .action(async () => {
+    const { gameTitle } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "gameTitle",
+        message: "Enter the game title to add a note to",
+        validate: (input) => (input ? true : "Game title cannot be empty"),
+      },
+    ]);
+    const { note } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "note",
+        message: "Enter the game note",
+        validate: (input) => (input ? true : "Game note cannot be empty"),
+      },
+    ]);
+
+    console.log(chalk.blue(`Adding the note to ${gameTitle}`));
+    await updateGameNotes(gameTitle, note); // Call your existing function
+    console.log(chalk.green("✨ Note added successfully! ✨"));
   });
 
 program.parse(process.argv);

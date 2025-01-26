@@ -5,6 +5,7 @@ specifiers:
   axios: ^1.7.9
   chalk: ^5.4.1
   commander: ^13.0.0
+  dayjs: ^1.11.13
   dotenv: ^16.4.7
   howlongtobeat: ^1.8.0
   inquirer: ^12.3.1
@@ -16,6 +17,7 @@ dependencies:
   axios: 1.7.9
   chalk: 5.4.1
   commander: 13.0.0
+  dayjs: 1.11.13
   dotenv: 16.4.7
   howlongtobeat: 1.8.0
   inquirer: 12.3.1
@@ -329,6 +331,10 @@ packages:
   /css-what/6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /dayjs/1.11.13:
+    resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
     dev: false
 
   /delayed-stream/1.0.0:

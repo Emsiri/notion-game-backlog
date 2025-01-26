@@ -17,6 +17,7 @@
     "axios": "^1.7.9",
     "chalk": "^5.4.1",
     "commander": "^13.0.0",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "howlongtobeat": "^1.8.0",
     "inquirer": "^12.3.1",
